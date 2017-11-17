@@ -16,6 +16,13 @@ namespace EthumRamiAssiSignup.Models
             // Add custom user claims here
             return userIdentity;
         }
+
+        // User's First Name
+        public string FirstName { get; set; }
+
+        // User's Last Name
+        public string LastName { get; set; }
+
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

@@ -7,6 +7,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using EthumRamiAssiSignup.Models;
+using EtohumRamiAssiSignup.Controllers;
 
 namespace EthumRamiAssiSignup.Controllers
 {

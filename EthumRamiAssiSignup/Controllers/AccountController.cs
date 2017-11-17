@@ -8,21 +8,25 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using System.Net.Mail;
+using EthumRamiAssiSignup;
+using EthumRamiAssiSignup.Services;
 using EthumRamiAssiSignup.Models;
 
-namespace EthumRamiAssiSignup.Controllers
+namespace EtohumRamiAssiSignup.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private IEmailQueueService _emailQueueService = new EmailQueueService();
 
         public AccountController()
         {
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -151,19 +155,44 @@ namespace EthumRamiAssiSignup.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+
                     // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
-                    return RedirectToAction("Index", "Home");
+                    ViewBag.Success = true;
+
+                    // Send welcome message to the registerd user
+                    _emailQueueService.SendMessageToQueue(new MailMessage("ramiassi@Etohum.com",
+                        model.Email,
+                        "Welcome to our website",
+                        $"Hello {model.FirstName} {model.LastName},<br />" +
+                          "We are very happy to tell you that your account has been created successfully!<br />" +
+                          "<br /><br />" +
+                          "--The Etohum web development team")
+                        );
+
+                    if (!string.IsNullOrEmpty(model.FriendEmail))
+                    {
+                        _emailQueueService.SendMessageToQueue(new MailMessage("ramiassi@Etohum.com",
+                        model.FriendEmail,
+                        "Welcome to our website",
+                        $"Hello you email was added to our system by your friend {model.FirstName} {model.LastName},<br />" +
+                          "to confirm your subscription please visit: <a href='http://etohum.com'>Etohum.com</a>!<br />" +
+                          "<br /><br />" +
+                          "--The Etohum web development team")
+                        );
+                    }
+
+                    return View(model);
+
                 }
                 AddErrors(result);
             }

@@ -79,6 +79,18 @@ namespace EthumRamiAssiSignup.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        // User's First Name
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
+
+        // User's Last Name
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
+
+        // The user can also add a friend's email
+        [Display(Name = "Friend's Email")]
+        public string FriendEmail { get; set; }
     }
 
     public class ResetPasswordViewModel
